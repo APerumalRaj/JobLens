@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  joblens:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: joblens-app
+    
+    # Environment variables
+    environment:
+      # Gmail OAuth
+      GMAIL_CLIENT_ID: ${GMAIL_CLIENT_ID}
+      GMAIL_CLIENT_SECRET: ${GMAIL_CLIENT_SECRET}
+      GMAIL_USER_EMAIL: ${GMAIL_USER_EMAIL}
+      
+      # SMTP (for sending summary emails)
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
+      
+      # Email recipient
+      RECIPIENT_EMAIL: ${RECIPIENT_EMAIL}
+      
+      # Optional: Configure logging level
+      LOGGING_LEVEL_COM_JOBLENS: DEBUG
+      LOGGING_LEVEL_ROOT: INFO
+    
+    # Port mapping (if needed for debugging)
+    ports:
+      - "8080:8080"
+      - "8888:8888"  # OAuth callback
+    
+    # Volume for persistent OAuth token storage
+    volumes:
+      - joblens-tokens:/app/tokens
+      - ./logs:/app/logs
+    
+    # Restart policy
+    restart: always
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+volumes:
+  joblens-tokens:
+    driver: local
+
+# Usage:
+# 1. Create .env file with required variables
+# 2. Run: docker-compose up -d
+# 3. View logs: docker-compose logs -f joblens
+# 4. Stop: docker-compose down

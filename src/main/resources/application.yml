@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: joblens-email-filter
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USER_EMAIL}
+    password: ${GMAIL_APP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+gmail:
+  oauth:
+    client-id: ${GMAIL_CLIENT_ID}
+    client-secret: ${GMAIL_CLIENT_SECRET}
+    redirect-uri: http://localhost:8888/callback
+    token-file-path: tokens/
+    scopes:
+      - https://www.googleapis.com/auth/gmail.readonly
+
+job:
+  keywords:
+    - java
+    - spring
+    - spring boot
+    - backend
+    - rest
+    - oracle
+    - microservices
+    - api
+  
+  experience:
+    min: 1
+    max: 3
+  
+  max-results: 10
+  
+  filter:
+    min-experience: 1
+    max-experience: 3
+  
+  email:
+    send-to: ${RECIPIENT_EMAIL}
+    subject: "JobLens - Top 10 Opportunities (Last 24h)"
+    from: ${GMAIL_USER_EMAIL}
+
+scheduling:
+  email-fetcher:
+    cron: "0 0 * * * *"  # Every hour
+
+logging:
+  level:
+    root: INFO
+    com.joblens: DEBUG
+    com.google.api: WARN
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
