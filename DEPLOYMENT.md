@@ -152,7 +152,28 @@ JOB_EMAIL_SEND_TO            = recipient@gmail.com
 The `.github/workflows/joblens-schedule.yml` is already set up to:
 - Run every hour automatically
 - Build your code
-- Execute JobLens
+- Execute JobLensE325: ATTENTION
+Found a swap file by the name "/d/Personal WorkSpace/JobLens/.git/.COMMIT_EDITMSG.swp"
+          owned by: IN04530   dated: Sun May 10 13:23:47 2026
+         file name: /d/Personal WorkSpace/JobLens/.git/COMMIT_EDITMSG
+          modified: YES
+         user name: IN04530   host name: INAZCHLP002841
+        process ID: 1849 (STILL RUNNING)
+While opening file "/d/Personal WorkSpace/JobLens/.git/COMMIT_EDITMSG"
+             dated: Mon May 11 20:10:06 2026
+      NEWER than swap file!
+
+(1) Another program may be editing the same file.  If this is the case,
+    be careful not to end up with two different instances of the same
+    file when making changes.  Quit, or continue with caution.
+(2) An edit session for this file crashed.
+    If this is the case, use ":recover" or "vim -r /d/Personal WorkSpace/JobLens/.git/COMMIT_EDITMSG"
+    to recover the changes (see ":help recovery").
+    If you did this already, delete the swap file "/d/Personal WorkSpace/JobLens/.git/.COMMIT_EDITMSG.swp"
+    to avoid this message.
+
+Swap file "/d/Personal WorkSpace/JobLens/.git/.COMMIT_EDITMSG.swp" already exists!
+[O]pen Read-Only, (E)dit anyway, (R)ecover, (Q)uit, (A)bort: 
 - Send emails
 
 ### Step 4: Test Workflow
