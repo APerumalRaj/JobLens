@@ -19,13 +19,15 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service for Gmail API integration
@@ -51,6 +53,21 @@ public class GmailService {
     
     @Value("${gmail.oauth.scopes}")
     private List<String> scopes;
+
+    @Value("${job.email.from}")
+    private String applicationSenderEmail;
+
+    @Value("${job.email.subject-prefix:JobLens -}")
+    private String applicationEmailSubjectPrefix;
+
+    @Value("${gmail.query.subject-terms:jobs,recommended,opportunities}")
+    private List<String> querySubjectTerms;
+
+    @Value("${gmail.max-emails-per-run:20}")
+    private Long queryMaxResults;
+
+    @Value("${gmail.lookback-hours:24}")
+    private Integer lookbackHours;
     
     /**
      * Create Gmail service with authentication
@@ -68,7 +85,7 @@ public class GmailService {
     /**
      * Get or create OAuth2 credentials
      */
-    private Credential getCredentials() throws Exception {
+    public Credential getCredentials() throws Exception {
         File tokensDirectory = new File(tokenFilePath);
         if (!tokensDirectory.exists()) {
             tokensDirectory.mkdirs();
@@ -100,43 +117,83 @@ public class GmailService {
             clientSecret,
             redirectUri
         );
-        
+
         return GoogleClientSecrets.load(
             JSON_FACTORY,
-            new ByteArrayInputStream(secretJson.getBytes(StandardCharsets.UTF_8))
+            new InputStreamReader(
+                new ByteArrayInputStream(
+                    secretJson.getBytes(StandardCharsets.UTF_8)
+                ),
+                StandardCharsets.UTF_8
+            )
         );
     }
     
     /**
-     * Fetch emails from last 24 hours with job-related keywords
+     * Build Gmail query for job-related emails and exclude self-generated notifications.
+     */
+    String buildJobSearchQuery(long afterSeconds) {
+        List<String> terms = querySubjectTerms == null || querySubjectTerms.isEmpty()
+            ? Arrays.asList("jobs", "recommended", "opportunities")
+            : querySubjectTerms;
+
+        String subjectQuery = terms.stream()
+            .map(term -> "subject:\"" + term + "\"")
+            .collect(Collectors.joining(" OR "));
+
+        String normalizedSubjectPrefix = applicationEmailSubjectPrefix == null
+            ? "JobLens -"
+            : applicationEmailSubjectPrefix.replaceAll("\"", "").trim();
+
+        return String.format(
+            "after:%d (%s) -from:me -from:%s -subject:\"%s\"",
+            afterSeconds,
+            subjectQuery,
+            applicationSenderEmail,
+            normalizedSubjectPrefix
+        );
+    }
+
+    /**
+     * Fetch emails from the configured lookback window with job-related keywords.
      */
     public List<Message> fetchRecentJobEmails() throws Exception {
         Gmail service = getGmailService();
         List<Message> messages = new ArrayList<>();
-        
-        // Calculate 24 hours ago timestamp
-        long oneDayAgoMs = System.currentTimeMillis() - ChronoUnit.DAYS.getDuration().toMillis();
-        long oneDayAgoSecs = oneDayAgoMs / 1000;
-        
-        // Query: emails from last 24 hours with job-related keywords
-        String query = String.format(
-            "after:%d (subject:jobs OR subject:recommended OR subject:opportunities)",
-            oneDayAgoSecs
-        );
-        
+
+        long afterSeconds = Instant.now()
+            .minus(lookbackHours, ChronoUnit.HOURS)
+            .getEpochSecond();
+
+        String query = buildJobSearchQuery(afterSeconds);
+
         log.info("Fetching emails with query: {}", query);
-        
+
         try {
             com.google.api.services.gmail.model.ListMessagesResponse response = service.users()
                 .messages()
                 .list("me")
                 .setQ(query)
-                .setMaxResults(20L)
+                .setMaxResults(queryMaxResults)
                 .execute();
-            
+
+            int skipped = 0;
             if (response.getMessages() != null) {
-                messages.addAll(response.getMessages());
-                log.info("Fetched {} emails from Gmail", messages.size());
+                for (Message message : response.getMessages()) {
+                    Message metadataMessage = getMessageMetadata(service, message.getId());
+                    if (metadataMessage == null) {
+                        continue;
+                    }
+                    if (isApplicationNotification(metadataMessage)) {
+                        skipped++;
+                        continue;
+                    }
+                    messages.add(metadataMessage);
+                }
+                log.info("Fetched {} emails from Gmail after notification filtering", messages.size());
+                if (skipped > 0) {
+                    log.info("Skipped {} self-generated notification emails", skipped);
+                }
             } else {
                 log.info("No emails found matching criteria");
             }
@@ -144,8 +201,59 @@ public class GmailService {
             log.error("Error fetching emails from Gmail", e);
             throw e;
         }
-        
+
         return messages;
+    }
+
+    /**
+     * Fetch message metadata required for notification filtering.
+     */
+    private Message getMessageMetadata(Gmail service, String messageId) {
+        try {
+            return service.users().messages().get("me", messageId)
+                .setFormat("metadata")
+                .setMetadataHeaders(Arrays.asList("From", "Subject"))
+                .execute();
+        } catch (Exception e) {
+            log.warn("Unable to fetch metadata for message {}", messageId, e);
+            return null;
+        }
+    }
+
+    /**
+     * Determine whether a message is an application notification email.
+     */
+    public boolean isApplicationNotification(Message message) {
+        String subject = getHeaderValue(message, "Subject");
+        String from = getHeaderValue(message, "From");
+
+        if (isFromApplicationEmail(from)) {
+            return true;
+        }
+
+        return isNotificationSubject(subject);
+    }
+
+    private boolean isFromApplicationEmail(String fromHeader) {
+        if (fromHeader == null || fromHeader.isBlank()) {
+            return false;
+        }
+
+        String normalizedFrom = fromHeader.toLowerCase();
+        String normalizedSender = applicationSenderEmail == null ? "" : applicationSenderEmail.toLowerCase();
+
+        return normalizedFrom.contains(normalizedSender) || normalizedFrom.contains("me");
+    }
+
+    private boolean isNotificationSubject(String subject) {
+        if (subject == null || subject.isBlank()) {
+            return false;
+        }
+
+        String normalizedSubject = subject.toLowerCase();
+        String normalizedPrefix = applicationEmailSubjectPrefix == null ? "joblens -" : applicationEmailSubjectPrefix.toLowerCase();
+
+        return normalizedSubject.contains(normalizedPrefix);
     }
     
     /**

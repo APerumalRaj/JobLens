@@ -37,6 +37,11 @@ public class JobExtractionService {
             String body = gmailService.extractMessageBody(fullMessage);
             
             log.debug("Processing email - Subject: {}, From: {}", subject, from);
+
+            if (gmailService.isApplicationNotification(fullMessage)) {
+                log.info("Skipping self-generated notification email: subject='{}', from='{}'", subject, from);
+                return null;
+            }
             
             // Parse HTML content
             Document doc = Jsoup.parse(body);

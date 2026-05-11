@@ -102,12 +102,12 @@ public class JobFilterService {
      * - Exclude jobs where experience cannot be extracted
      */
     private boolean matchesExperience(JobDTO job) {
-        boolean matches = ExperienceExtractionUtil.isExperienceMatch(
+        boolean matches = true; /*ExperienceExtractionUtil.isExperienceMatch(
             job.getMinExperience(),
             job.getMaxExperience(),
             userMinExperience,
             userMaxExperience
-        );
+        );*///Commeneted since nor response is getting will add best filter for xperience
         
         if (matches) {
             log.debug("Job '{}' experience range {}-{} matches user criteria {}-{}",

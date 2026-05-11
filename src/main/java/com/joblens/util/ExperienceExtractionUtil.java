@@ -40,6 +40,16 @@ public class ExperienceExtractionUtil {
         "(?:preferred|nice\\s+to\\s+have|ideal).*?(\\d{1,2})\\s*(?:years?|yrs?|y\\.?)",
         Pattern.CASE_INSENSITIVE
     );
+
+    private static final Pattern FRESHER_PATTERN = Pattern.compile(
+        "\b(?:fresher|freshers|entry\\s*level|junior)\b",
+        Pattern.CASE_INSENSITIVE
+    );
+
+    private static final Pattern EXPERIENCED_PATTERN = Pattern.compile(
+        "\bexperienced\b",
+        Pattern.CASE_INSENSITIVE
+    );
     
     /**
      * Extract experience range from text
@@ -85,8 +95,26 @@ public class ExperienceExtractionUtil {
             log.debug("Found minimum pattern: {}", result.get("min"));
             return result;
         }
-        
-        // Pattern 4: "X years experience" or standalone "X years"
+
+        // Pattern 4: "fresher", "freshers", "entry level", or "junior"
+        Matcher fresherMatcher = FRESHER_PATTERN.matcher(processedText);
+        if (fresherMatcher.find()) {
+            result.put("min", 0);
+            result.put("max", 1);
+            log.debug("Found fresher pattern");
+            return result;
+        }
+
+        // Pattern 5: generic "experienced" hints
+        Matcher experiencedMatcher = EXPERIENCED_PATTERN.matcher(processedText);
+        if (experiencedMatcher.find()) {
+            result.put("min", 0);
+            result.put("max", null);
+            log.debug("Found experienced pattern");
+            return result;
+        }
+
+        // Pattern 6: "X years experience" or standalone "X years"
         Matcher singleMatcher = SINGLE_VALUE_PATTERN.matcher(processedText);
         if (singleMatcher.find()) {
             int years = Integer.parseInt(singleMatcher.group(1));
@@ -95,8 +123,8 @@ public class ExperienceExtractionUtil {
             log.debug("Found single value pattern: {}", years);
             return result;
         }
-        
-        // Pattern 5: "preferred X years" (fallback to single value)
+
+        // Pattern 7: "preferred X years" (fallback to single value)
         Matcher preferredMatcher = PREFERRED_PATTERN.matcher(processedText);
         if (preferredMatcher.find()) {
             int years = Integer.parseInt(preferredMatcher.group(1));

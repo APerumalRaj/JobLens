@@ -1,0 +1,55 @@
+name: JobLens Scheduled Run
+
+on:
+  schedule:
+    # Run every hour at minute 0
+    - cron: '0 * * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  joblens:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      
+      - name: Build with Maven
+        run: mvn clean package -q -DskipTests
+      
+      - name: Download Gmail tokens
+        run: |
+          mkdir -p tokens
+          # You can store tokens in GitHub Secrets and download them here
+          # This is a placeholder - implement token persistence with S3/GCS/etc
+      
+      - name: Run JobLens
+        env:
+          GMAIL_OAUTH_CLIENT_ID: ${{ secrets.GMAIL_OAUTH_CLIENT_ID }}
+          GMAIL_OAUTH_CLIENT_SECRET: ${{ secrets.GMAIL_OAUTH_CLIENT_SECRET }}
+          GMAIL_SMTP_USERNAME: ${{ secrets.GMAIL_SMTP_USERNAME }}
+          GMAIL_SMTP_PASSWORD: ${{ secrets.GMAIL_SMTP_PASSWORD }}
+          JOB_EMAIL_SEND_TO: ${{ secrets.JOB_EMAIL_SEND_TO }}
+          SPRING_MAIL_HOST: smtp.gmail.com
+          SPRING_MAIL_PORT: 587
+          SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+          SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+          SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: "true"
+        run: |
+          java -jar target/job-email-filter-1.0.0.jar &
+          sleep 30
+          kill %1 || true
+      
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: joblens-logs
+          path: logs/

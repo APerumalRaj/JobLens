@@ -4,57 +4,57 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${GMAIL_USER_EMAIL}
-    password: ${GMAIL_APP_PASSWORD}
+    username: perumalraj024@gmail.com
+    password: obsd ocys xbjd vtpt
+
     properties:
       mail:
+        debug: true
         smtp:
           auth: true
           starttls:
             enable: true
             required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
+          connectiontimeout: 30000
+          timeout: 30000
+          writetimeout: 30000
 
 gmail:
   oauth:
-    client-id: ${GMAIL_CLIENT_ID}
-    client-secret: ${GMAIL_CLIENT_SECRET}
+    client-id: 956600029837-4ds3lc3vibf1iplg1i0mir7qpoq8ia4d.apps.googleusercontent.com
+    client-secret: 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
     redirect-uri: http://localhost:8888/callback
     token-file-path: tokens/
-    scopes:
-      - https://www.googleapis.com/auth/gmail.readonly
+    scopes: https://www.googleapis.com/auth/gmail.readonly
+  lookback-hours: 24
+  max-emails-per-run: 20
+  query:
+    subject-terms:
+      - jobs
+      - recommended
+      - opportunities
 
 job:
-  keywords:
-    - java
-    - spring
-    - spring boot
-    - backend
-    - rest
-    - oracle
-    - microservices
-    - api
+  keywords: java,spring,spring boot,backend,rest,oracle,microservices,api
   
   experience:
-    min: 1
-    max: 3
+    min: 0
+    max: 10
   
   max-results: 10
   
   filter:
-    min-experience: 1
-    max-experience: 3
+    min-experience: 0
+    max-experience: 10
   
   email:
-    send-to: ${RECIPIENT_EMAIL}
+    send-to: perumalraj024@gmail.com
     subject: "JobLens - Top 10 Opportunities (Last 24h)"
-    from: ${GMAIL_USER_EMAIL}
-
+    from: perumalraj024@gmail.com
+    subject-prefix: "JobLens -"
 scheduling:
   email-fetcher:
-    cron: "0 0 * * * *"  # Every hour
+    cron: "*/10 * * * * *"
 
 logging:
   level:

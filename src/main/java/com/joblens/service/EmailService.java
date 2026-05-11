@@ -9,7 +9,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -65,7 +65,7 @@ public class EmailService {
     /**
      * Send notification when no jobs are found
      */
-    private void sendNoJobsEmail() {
+    public void sendNoJobsEmail() {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(senderEmail);

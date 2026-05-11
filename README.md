@@ -1,6 +1,8 @@
 # JobLens - Email-based Job Opportunity Finder
 
-A production-ready Spring Boot application that reads job-related emails from Gmail, extracts job details, filters them based on skills and experience range, and sends a summarized email.
+A production-ready Spring Boot application that **automatically fetches job emails from Gmail, extracts details, filters by skills & experience, and sends a curated summary email** — completely automated and deployable anywhere.
+
+> **⚠️ NEW:** Comprehensive documentation added! See [Quick Start](#quick-start) below.
 
 ## 🚀 Features
 

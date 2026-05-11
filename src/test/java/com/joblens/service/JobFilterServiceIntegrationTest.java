@@ -156,6 +156,24 @@ class ExperienceExtractionUtilTest {
         assertNull(result.get("min"));
         assertNull(result.get("max"));
     }
+
+    @Test
+    void testFresherPattern() {
+        Map<String, Integer> result = ExperienceExtractionUtil.extractExperience(
+            "Hiring freshers for a trainee role"
+        );
+        assertEquals(0, result.get("min"));
+        assertEquals(1, result.get("max"));
+    }
+
+    @Test
+    void testExperiencedPattern() {
+        Map<String, Integer> result = ExperienceExtractionUtil.extractExperience(
+            "Experienced developers preferred"
+        );
+        assertEquals(0, result.get("min"));
+        assertNull(result.get("max"));
+    }
     
     @Test
     void testExperienceMatching() {

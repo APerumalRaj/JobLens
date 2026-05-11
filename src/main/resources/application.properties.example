@@ -1,19 +1,18 @@
 # ===================================================
-# JobLens Alternative Configuration (application.properties)
+# JobLens Configuration
 # ===================================================
-# Use this instead of application.yml if you prefer
-# Copy to src/main/resources/application.properties
 
-# Application
 spring.application.name=joblens-email-filter
 
 # ===================================================
 # Mail Configuration (SMTP)
 # ===================================================
+
 spring.mail.host=smtp.gmail.com
 spring.mail.port=587
-spring.mail.username=${GMAIL_USER_EMAIL}
-spring.mail.password=${GMAIL_APP_PASSWORD}
+spring.mail.username=perumalraj@024@gmail.com
+spring.mail.password=RajuA@2001
+
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 spring.mail.properties.mail.smtp.starttls.required=true
@@ -24,8 +23,10 @@ spring.mail.properties.mail.smtp.writetimeout=5000
 # ===================================================
 # Gmail OAuth Configuration
 # ===================================================
-gmail.oauth.client-id=${GMAIL_CLIENT_ID}
-gmail.oauth.client-secret=${GMAIL_CLIENT_SECRET}
+
+gmail.oauth.client-id=956600029837-4ds3lc3vibf1iplg1i0mir7qpoq8ia4d.apps.googleusercontent.com
+gmail.oauth.client-secret=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
+
 gmail.oauth.redirect-uri=http://localhost:8888/callback
 gmail.oauth.token-file-path=tokens/
 gmail.oauth.scopes=https://www.googleapis.com/auth/gmail.readonly
@@ -33,80 +34,83 @@ gmail.oauth.scopes=https://www.googleapis.com/auth/gmail.readonly
 # ===================================================
 # Job Filtering Configuration
 # ===================================================
-# Keywords to match in job descriptions
+
 job.keywords=java,spring,spring boot,backend,rest,oracle,microservices,api
 
-# Experience range configuration
-job.experience.min=1
-job.experience.max=3
+job.experience.min=0
+job.experience.max=10
 
-# Maximum jobs to return
 job.max-results=10
 
-# Filter settings (same as experience range by default)
-job.filter.min-experience=1
-job.filter.max-experience=3
+job.filter.min-experience=0
+job.filter.max-experience=10
 
-# Email sending configuration
-job.email.send-to=${RECIPIENT_EMAIL}
+# ===================================================
+# Email Configuration
+# ===================================================
+
+job.email.send-to=perumalraj024@gmail.com
 job.email.subject=JobLens - Top 10 Opportunities (Last 24h)
-job.email.from=${GMAIL_USER_EMAIL}
+job.email.from=perumalraj@024@gmail.com
+job.email.subject-prefix=JobLens -
 
 # ===================================================
 # Scheduling Configuration
-# Cron expression format: second minute hour day-of-month month day-of-week
 # ===================================================
-# Every hour at :00 second
+
 scheduling.email-fetcher.cron=0 0 * * * *
-
-# For testing: every 5 minutes
-# scheduling.email-fetcher.cron=0 */5 * * * *
-
-# For testing: every minute
-# scheduling.email-fetcher.cron=0 * * * * *
-
-# Daily at 9 AM
-# scheduling.email-fetcher.cron=0 0 9 * * *
 
 # ===================================================
 # Logging Configuration
 # ===================================================
+
 logging.level.root=INFO
 logging.level.com.joblens=DEBUG
 logging.level.com.google.api=WARN
+
 logging.pattern.console=%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+
 logging.pattern.file=%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+
 logging.file.name=logs/joblens.log
 logging.file.max-size=10MB
 logging.file.max-history=10
 
 # ===================================================
-# Server Configuration (if using web interface)
+# Server Configuration
 # ===================================================
+
 server.port=8080
 server.servlet.context-path=/
 server.shutdown=graceful
+
 spring.lifecycle.timeout-per-shutdown-phase=30s
 
 # ===================================================
-# Additional Spring Boot Settings
+# Spring Boot Settings
 # ===================================================
+
 spring.jpa.hibernate.ddl-auto=validate
 spring.jpa.show-sql=false
 
-# Jackson JSON configuration
+# ===================================================
+# Jackson JSON Configuration
+# ===================================================
+
 spring.jackson.serialization.write-dates-as-timestamps=false
 spring.jackson.serialization.indent-output=true
 
 # ===================================================
-# Application Behavior
+# Gmail Fetch Settings
 # ===================================================
-# Maximum number of emails to fetch per run
+
 gmail.max-emails-per-run=20
-
-# Email fetch lookback period (in hours)
 gmail.lookback-hours=24
+gmail.query.subject-terms=jobs,recommended,opportunities
 
-# Enable health checks
+# ===================================================
+# Health Checks
+# ===================================================
+
 management.endpoints.web.exposure.include=health,info
 management.endpoint.health.show-details=when-authorized
