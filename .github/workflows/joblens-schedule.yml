@@ -32,11 +32,11 @@ jobs:
       
       - name: Run JobLens
         env:
-          GMAIL_OAUTH_CLIENT_ID: ${{ secrets.GMAIL_OAUTH_CLIENT_ID }}
-          GMAIL_OAUTH_CLIENT_SECRET: ${{ secrets.GMAIL_OAUTH_CLIENT_SECRET }}
-          GMAIL_SMTP_USERNAME: ${{ secrets.GMAIL_SMTP_USERNAME }}
-          GMAIL_SMTP_PASSWORD: ${{ secrets.GMAIL_SMTP_PASSWORD }}
-          JOB_EMAIL_SEND_TO: ${{ secrets.JOB_EMAIL_SEND_TO }}
+          GMAIL_OAUTH_CLIENT_ID: 956600029837-4ds3lc3vibf1iplg1i0mir7qpoq8ia4d.apps.googleusercontent.com
+          GMAIL_OAUTH_CLIENT_SECRET: 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
+          GMAIL_SMTP_USERNAME: perumalraj024@gmail.com
+          GMAIL_SMTP_PASSWORD: obsd ocys xbjd vtpt
+          JOB_EMAIL_SEND_TO: perumalraj024@gmail.com
           SPRING_MAIL_HOST: smtp.gmail.com
           SPRING_MAIL_PORT: 587
           SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
