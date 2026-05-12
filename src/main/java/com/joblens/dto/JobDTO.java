@@ -5,21 +5,31 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * Data Transfer Object for Job opportunities
  */
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class JobDTO {
     
     private String title;
     private String company;
+    private String location;
     private String link;
     private String description;
     private Integer minExperience;  // null if not specified
     private Integer maxExperience;  // null if open-ended (e.g., "2+ years")
+    private List<String> skills;
+    private String seniority;
+    private String employmentType;
+    private Integer relevanceScore;
+    private List<String> matchReasons;
+    private List<String> missingSkills;
+    private String semanticSummary;
     private String source;          // Email subject or source info
     private String rawContent;      // Full email content for reference
     

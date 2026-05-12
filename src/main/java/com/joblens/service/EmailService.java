@@ -122,12 +122,37 @@ public class EmailService {
             html.append("<div class=\"job-meta\">");
             html.append("<strong>Company:</strong> ").append(escapeHtml(job.getCompany())).append("<br>");
             html.append("<strong>Experience:</strong> <span class=\"experience\">").append(escapeHtml(job.getExperienceRange())).append("</span><br>");
+            if (job.getRelevanceScore() != null) {
+                html.append("<strong>Relevance:</strong> <span class=\"experience\">").append(job.getRelevanceScore()).append("% match</span><br>");
+            }
+            if (job.getLocation() != null && !job.getLocation().isBlank()) {
+                html.append("<strong>Location:</strong> ").append(escapeHtml(job.getLocation())).append("<br>");
+            }
+            if (job.getSeniority() != null && !job.getSeniority().isBlank()) {
+                html.append("<strong>Seniority:</strong> ").append(escapeHtml(job.getSeniority())).append("<br>");
+            }
             html.append("</div>");
             
-            if (job.getDescription() != null && !job.getDescription().isEmpty()) {
+            if (job.getSemanticSummary() != null && !job.getSemanticSummary().isEmpty()) {
+                html.append("<p style=\"color: #555; font-size: 13px; margin: 10px 0; font-style: italic;\">")
+                    .append(escapeHtml(job.getSemanticSummary()))
+                    .append("</p>");
+            } else if (job.getDescription() != null && !job.getDescription().isEmpty()) {
                 html.append("<p style=\"color: #555; font-size: 13px; margin: 10px 0;\">").append(escapeHtml(job.getShortDescription())).append("</p>");
             }
-            
+
+            if (job.getMatchReasons() != null && !job.getMatchReasons().isEmpty()) {
+                html.append("<p style=\"color: #444; font-size: 12px; margin: 10px 0;\"><strong>Reasons:</strong> ")
+                    .append(escapeHtml(String.join(", ", job.getMatchReasons())))
+                    .append("</p>");
+            }
+
+            if (job.getMissingSkills() != null && !job.getMissingSkills().isEmpty()) {
+                html.append("<p style=\"color: #777; font-size: 12px; margin: 10px 0;\"><strong>Missing skills:</strong> ")
+                    .append(escapeHtml(String.join(", ", job.getMissingSkills())))
+                    .append("</p>");
+            }
+
             if (job.getLink() != null && !job.getLink().isEmpty()) {
                 html.append("<a href=\"").append(escapeHtml(job.getLink())).append("\" class=\"job-link\" target=\"_blank\">View & Apply →</a>");
             }

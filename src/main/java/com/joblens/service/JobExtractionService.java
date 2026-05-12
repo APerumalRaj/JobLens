@@ -24,6 +24,9 @@ public class JobExtractionService {
     
     @Autowired
     private GmailService gmailService;
+
+    @Autowired
+    private JobLinkExtractorService jobLinkExtractorService;
     
     /**
      * Extract job details from email message
@@ -35,7 +38,7 @@ public class JobExtractionService {
             String subject = gmailService.getHeaderValue(fullMessage, "Subject");
             String from = gmailService.getHeaderValue(fullMessage, "From");
             String body = gmailService.extractMessageBody(fullMessage);
-            
+            log.debug("Body :" , body);
             log.debug("Processing email - Subject: {}, From: {}", subject, from);
 
             if (gmailService.isApplicationNotification(fullMessage)) {
@@ -207,9 +210,24 @@ public class JobExtractionService {
         
         for (Message message : messages) {
             try {
-                JobDTO job = extractJobFromEmail(message);
-                if (job != null && job.getLink() != null) {
-                    jobs.add(job);
+                JobDTO primaryJob = extractJobFromEmail(message);
+                if (primaryJob == null) {
+                    continue;
+                }
+
+                List<String> candidateLinks = jobLinkExtractorService.extractCandidateJobUrls(
+                    primaryJob.getRawContent(), primaryJob.getSource()
+                );
+
+                if (!candidateLinks.isEmpty()) {
+                    for (String candidateLink : candidateLinks) {
+                        JobDTO clone = primaryJob.toBuilder()
+                            .link(candidateLink)
+                            .build();
+                        jobs.add(clone);
+                    }
+                } else if (primaryJob.getLink() != null) {
+                    jobs.add(primaryJob);
                 }
             } catch (Exception e) {
                 log.error("Error processing message", e);

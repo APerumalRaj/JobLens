@@ -52,6 +52,16 @@ job:
     subject: "JobLens - Top 10 Opportunities (Last 24h)"
     from: perumalraj024@gmail.com
     subject-prefix: "JobLens -"
+
+openai:
+  api-key: ${OPENAI_API_KEY:}
+  model: gpt-4o-mini
+  temperature: 0.0
+  max-tokens: 700
+
+resume:
+  file-path: resume.pdf
+
 scheduling:
   email-fetcher:
     cron: "*/10 * * * * *"
