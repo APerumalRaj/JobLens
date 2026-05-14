@@ -154,6 +154,12 @@ Sends HTML email with:
 - Job title, company, experience range
 - Direct apply links
 
+## 📘 For Beginners
+If you are new to AI or Spring Boot, start with `COMPREHENSIVE-GUIDE.md`.
+It contains a step-by-step, easy-to-follow walk-through of every source file and every major concept used in this project.
+
+This project is designed to be a learning tool: the code is split into small services, and the detailed guide explains how each part works.
+
 ## 🧪 Testing the Experience Extraction
 
 The `ExperienceExtractionUtil` handles various patterns:
